@@ -1,4 +1,4 @@
-package session
+package sessiongo
 
 import "errors"
 
