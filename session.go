@@ -25,6 +25,7 @@ func NewSession(sessionid string) *Session {
 }
 
 //SetExpireTime set the expire time of session
+//ex: 1 day 24*60*60
 func (s *Session) SetExpireTime(t int) {
 	s.expireTime = time.Now().Add(time.Duration(t) * time.Second)
 }
@@ -49,14 +50,22 @@ type SessionsStorageInMemory struct {
 
 const defaultAge = 24 * 60 * 60
 
+//CheckPeriod change check Period to change the check Period of Runcheck()
+var CheckPeriod = 60 * 60
+
 //NewSessionsStorage return a ptr of SessionsStorageInMemory struct
 func NewSessionsStorage() *SessionsStorageInMemory {
 	session := new(SessionsStorageInMemory)
 	session.sessions = make(map[string]*Session)
 	session.age = defaultAge
-	//check every hour to make sure expireout session is deleted
-	go session.checkSessionInStorage(60 * 60 * time.Second)
+
 	return session
+}
+
+//RunCheck create a goroutine to check the exipre time of session
+func (s *SessionsStorageInMemory) RunCheck() {
+	//check every hour to make sure expireout session is deleted
+	go s.checkSessionInStorage(time.Duration(CheckPeriod) * time.Second)
 }
 
 //Add add a session in storage
